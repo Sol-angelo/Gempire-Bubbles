@@ -62,3 +62,9 @@ mandatory=true
 versionRange="${minecraft_version_range}"
 ordering="NONE"
 side="BOTH"
+[[dependencies.gembubble]]
+modId="gempire"
+mandatory=true
+versionRange="[1.19,)"
+ordering="AFTER"
+side="BOTH"
