@@ -10,5 +10,6 @@ public class Registry {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         ModItems.ITEMS.register(bus);
         ModEntities.ENTITIES.register(bus);
+        ModSounds.SOUNDS.register(bus);
     }
 }

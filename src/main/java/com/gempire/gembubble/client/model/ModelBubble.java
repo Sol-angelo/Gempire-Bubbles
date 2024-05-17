@@ -1,9 +1,8 @@
-package com.gempire.gembubble.client.model;// Made with Blockbench 4.9.4
+package com.gempire.gembubble.client.model;// Made with Blockbench 4.10.1
 // Exported for Minecraft version 1.17 or later with Mojang mappings
 // Paste this class into your mod and generate all required imports
 
 
-import com.gempire.gembubble.entity.EntityBubble;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.model.EntityModel;
@@ -12,8 +11,9 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 
-public class ModelBubble<T extends EntityBubble> extends EntityModel<T> {
+public class ModelBubble<T extends Entity> extends EntityModel<T> {
 	// This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
 	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation("gembubble", "bubble"), "main");
 	private final ModelPart bb_main;
@@ -26,13 +26,30 @@ public class ModelBubble<T extends EntityBubble> extends EntityModel<T> {
 		MeshDefinition meshdefinition = new MeshDefinition();
 		PartDefinition partdefinition = meshdefinition.getRoot();
 
-		PartDefinition bb_main = partdefinition.addOrReplaceChild("bb_main", CubeListBuilder.create().texOffs(0, 16).addBox(-8.0F, -16.0F, -8.0F, 16.0F, 16.0F, 16.0F, new CubeDeformation(-4.0F)), PartPose.offset(0.0F, 24.0F, 0.0F));
+		PartDefinition bb_main = partdefinition.addOrReplaceChild("bb_main", CubeListBuilder.create().texOffs(7, 7).addBox(-4.0F, 4.0F, 4.0F, 8.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+		.texOffs(7, 7).addBox(-4.0F, -4.0F, 5.0F, 8.0F, 8.0F, 1.0F, new CubeDeformation(0.0F))
+		.texOffs(7, 7).addBox(-4.0F, -5.0F, 4.0F, 8.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+		.texOffs(7, 7).addBox(-4.0F, 4.0F, -5.0F, 8.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+		.texOffs(7, 7).addBox(-4.0F, -4.0F, -6.0F, 8.0F, 8.0F, 1.0F, new CubeDeformation(0.0F))
+		.texOffs(7, 7).addBox(-4.0F, -5.0F, -5.0F, 8.0F, 1.0F, 1.0F, new CubeDeformation(0.0F))
+		.texOffs(0, 0).addBox(4.0F, 4.0F, -4.0F, 1.0F, 1.0F, 8.0F, new CubeDeformation(0.0F))
+		.texOffs(0, 0).addBox(5.0F, -4.0F, -4.0F, 1.0F, 8.0F, 8.0F, new CubeDeformation(0.0F))
+		.texOffs(0, 0).addBox(4.0F, -5.0F, -4.0F, 1.0F, 1.0F, 8.0F, new CubeDeformation(0.0F))
+		.texOffs(0, 0).addBox(-5.0F, 4.0F, -4.0F, 1.0F, 1.0F, 8.0F, new CubeDeformation(0.0F))
+		.texOffs(0, 0).addBox(-6.0F, -4.0F, -4.0F, 1.0F, 8.0F, 8.0F, new CubeDeformation(0.0F))
+		.texOffs(0, 0).addBox(-5.0F, -5.0F, -4.0F, 1.0F, 1.0F, 8.0F, new CubeDeformation(0.0F))
+		.texOffs(7, 7).addBox(-5.0F, -4.0F, -5.0F, 1.0F, 8.0F, 1.0F, new CubeDeformation(0.0F))
+		.texOffs(7, 7).addBox(4.0F, -4.0F, -5.0F, 1.0F, 8.0F, 1.0F, new CubeDeformation(0.0F))
+		.texOffs(7, 7).addBox(-5.0F, -4.0F, 4.0F, 1.0F, 8.0F, 1.0F, new CubeDeformation(0.0F))
+		.texOffs(7, 7).addBox(4.0F, -4.0F, 4.0F, 1.0F, 8.0F, 1.0F, new CubeDeformation(0.0F))
+		.texOffs(0, 0).addBox(-4.0F, 5.0F, -4.0F, 8.0F, 1.0F, 8.0F, new CubeDeformation(0.0F))
+		.texOffs(0, 0).addBox(-4.0F, -6.0F, -4.0F, 8.0F, 1.0F, 8.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 24.0F, 0.0F));
 
-		return LayerDefinition.create(meshdefinition, 64, 64);
+		return LayerDefinition.create(meshdefinition, 32, 32);
 	}
 
 	@Override
-	public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+	public void setupAnim(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
 
 	}
 

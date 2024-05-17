@@ -53,6 +53,7 @@ public class RenderBubble<T extends EntityBubble> extends EntityRenderer<T> {
         return p_174216_.getType() == EntityType.GLOW_ITEM_FRAME ? Math.max(5, super.getBlockLightLevel(p_174216_, p_174217_)) : super.getBlockLightLevel(p_174216_, p_174217_);
     }
 
+    @Override
     public void render(T p_115076_, float p_115077_, float p_115078_, PoseStack p_115079_, MultiBufferSource p_115080_, int p_115081_) {
         super.render(p_115076_, p_115077_, p_115078_, p_115079_, p_115080_, p_115081_);
         p_115079_.pushPose();
@@ -69,7 +70,7 @@ public class RenderBubble<T extends EntityBubble> extends EntityRenderer<T> {
             ModelManager modelmanager = this.blockRenderer.getBlockModelShaper().getModelManager();
             p_115079_.pushPose();
             p_115079_.translate(-0.5F, -0.5F, -0.5F);
-            //this.blockRenderer.getModelRenderer().renderModel(p_115079_.last(), p_115080_.getBuffer(Sheets.solidBlockSheet()), (BlockState)null, modelmanager.getModel(), 1.0F, 1.0F, 1.0F, p_115081_, OverlayTexture.NO_OVERLAY);
+            this.blockRenderer.getModelRenderer().renderModel(p_115079_.last(), p_115080_.getBuffer(Sheets.solidBlockSheet()), (BlockState)null, modelmanager.getModel(ModelBubble.LAYER_LOCATION.getModel()), 1.0F, 1.0F, 1.0F, p_115081_, OverlayTexture.NO_OVERLAY);
             p_115079_.popPose();
         }
 

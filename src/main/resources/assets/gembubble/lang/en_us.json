@@ -1,3 +1,9 @@
 {
-  "item.gembubble.bubble_wand": "Bubble Wand"
+  "item.gembubble.bubble_wand": "Bubble Wand",
+
+  "entity.gembubble.bubble": "Bubble",
+
+  "gembubble.subtitle.bubble": "Bubble Formed",
+  "gembubble.subtitle.pop": "Bubble Popped",
+  "gembubble.subtitle.send": "Bubble Sent"
 }

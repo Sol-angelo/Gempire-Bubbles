@@ -1,0 +1,14 @@
+{
+  "inject": {
+    "subtitle": "gembubble.subtitle.bubble",
+    "sounds": [ "gembubble:bubble" ]
+  },
+  "poof": {
+    "subtitle": "gembubble.subtitle.pop",
+    "sounds": [ "gembubble:pop" ]
+  },
+  "whistle": {
+    "subtitle": "gembubble.subtitle.send",
+    "sounds": [ "gembubble:send" ]
+  }
+}
