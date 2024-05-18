@@ -11,18 +11,32 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.animal.FlyingAnimal;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.WaterlilyBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.awt.*;
 import java.util.UUID;
@@ -64,8 +78,18 @@ public class EntityBubble extends Entity {
     }
 
     @Override
+    public boolean isPickable() {
+        return true;
+    }
+
+    @Override
     public boolean canBeCollidedWith() {
         return true;
+    }
+
+    @Override
+    public boolean canCollideWith(Entity p_20303_) {
+        return Boat.canVehicleCollide(this, p_20303_);
     }
 
     @Override
@@ -82,7 +106,10 @@ public class EntityBubble extends Entity {
     public boolean hurt(DamageSource source, float p_19947_) {
         if (this.isInvulnerableTo(source)) {
             return false;
-        } else if (!this.level.isClientSide && !this.isRemoved()) {
+        }
+        this.getLevel().playSound(null, this.getOnPos(), ModSounds.POP.get(), SoundSource.PLAYERS, 2f, 1);
+        if (!this.level.isClientSide && !this.isRemoved()) {
+            this.spawnAtLocation(getItem());
             this.kill();
             return true;
         }
@@ -90,22 +117,21 @@ public class EntityBubble extends Entity {
     }
 
     @Override
-    public void kill() {
-        this.spawnAtLocation(getItem());
-        this.playSound(ModSounds.POP.get());
-        super.kill();
+    public boolean fireImmune() {
+        return true;
     }
 
     public void sendHome(Player owner, Level level) {
         System.out.println("send home");
-        if (level instanceof ServerLevel) {
-            BlockPos pos = ((ServerPlayer) owner).getRespawnPosition();
-            ResourceKey<Level> dim = ((ServerPlayer) owner).getRespawnDimension();
-            if (dim.equals(this.level.dimension())) {
-                this.setPos(pos.getX(), pos.getY(), pos.getZ());
-                playSound(ModSounds.SEND.get());
+        this.getLevel().playSound(this, this.getOnPos(), ModSounds.SEND.get(), SoundSource.PLAYERS, 2f, 1);
+        if (level instanceof ServerLevel && owner instanceof ServerPlayer) {
+            if (((ServerPlayer) owner).getRespawnPosition() != null) {
+                int x = ((ServerPlayer) owner).getRespawnPosition().getX();
+                int y = ((ServerPlayer) owner).getRespawnPosition().getY() + 1;
+                int z = ((ServerPlayer) owner).getRespawnPosition().getZ();
+                this.teleportTo(x, y, z);
             } else {
-                System.out.println("not correct dim");
+                this.teleportTo(level.getSharedSpawnPos().getX(), level.getSharedSpawnPos().getY(), level.getSharedSpawnPos().getZ());
             }
         }
     }
@@ -127,6 +153,57 @@ public class EntityBubble extends Entity {
         }
 
         return InteractionResult.CONSUME;
+    }
+
+    public float getGroundFriction() {
+        AABB aabb = this.getBoundingBox();
+        AABB aabb1 = new AABB(aabb.minX, aabb.minY - 0.001D, aabb.minZ, aabb.maxX, aabb.minY, aabb.maxZ);
+        int i = Mth.floor(aabb1.minX) - 1;
+        int j = Mth.ceil(aabb1.maxX) + 1;
+        int k = Mth.floor(aabb1.minY) - 1;
+        int l = Mth.ceil(aabb1.maxY) + 1;
+        int i1 = Mth.floor(aabb1.minZ) - 1;
+        int j1 = Mth.ceil(aabb1.maxZ) + 1;
+        VoxelShape voxelshape = Shapes.create(aabb1);
+        float f = 0.0F;
+        int k1 = 0;
+        BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
+
+        for(int l1 = i; l1 < j; ++l1) {
+            for(int i2 = i1; i2 < j1; ++i2) {
+                int j2 = (l1 != i && l1 != j - 1 ? 0 : 1) + (i2 != i1 && i2 != j1 - 1 ? 0 : 1);
+                if (j2 != 2) {
+                    for(int k2 = k; k2 < l; ++k2) {
+                        if (j2 <= 0 || k2 != k && k2 != l - 1) {
+                            blockpos$mutableblockpos.set(l1, k2, i2);
+                            BlockState blockstate = this.level.getBlockState(blockpos$mutableblockpos);
+                            if (!(blockstate.getBlock() instanceof WaterlilyBlock) && Shapes.joinIsNotEmpty(blockstate.getCollisionShape(this.level, blockpos$mutableblockpos).move((double)l1, (double)k2, (double)i2), voxelshape, BooleanOp.AND)) {
+                                f += blockstate.getFriction(this.level, blockpos$mutableblockpos, this);
+                                ++k1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return f / (float)k1;
+    }
+
+    @Override
+    public void tick() {
+        if (!level.isClientSide) {
+            this.move(MoverType.SELF, this.getDeltaMovement());
+
+            Vec3 vec3 = this.getDeltaMovement();
+            this.setDeltaMovement(vec3.x * (double) this.getGroundFriction(), vec3.y, vec3.z * (double) this.getGroundFriction());
+
+            Vec3 vec32 = this.getDeltaMovement();
+            if (!this.isNoGravity()) {
+                double d0 = this.isInWater() ? -0.005D : -0.02D;
+                this.setDeltaMovement(vec32.x, d0, vec32.y);
+            }
+        }
     }
 
     @Override

@@ -30,16 +30,22 @@ public class BubbleWandItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         if (!level.isClientSide) {
+            System.out.println("use");
             EntityHitResult util = ProjectileUtil.getEntityHitResult(level, player, player.position(), player.position().add(player.getDeltaMovement()), player.getBoundingBox().inflate(30D), this::isEntityValid);
-            ItemEntity item = (ItemEntity) util.getEntity();
-            Vec3 pos = util.getLocation();
-            EntityBubble bubble = new EntityBubble(ModEntities.BUBBLE.get(), level);
-            level.addFreshEntity(bubble);
-            bubble.setPos(pos);
-            bubble.setItem(item.getItem());
-            bubble.owner = player.getUUID();
-            bubble.setColor(player.getRandom().nextInt(15));
-            bubble.playSound(ModSounds.BUBBLE.get());
+            if (!(util == null)) {
+                System.out.println("entity found");
+                ItemEntity item = (ItemEntity) util.getEntity();
+                Vec3 pos = util.getLocation();
+                EntityBubble bubble = new EntityBubble(ModEntities.BUBBLE.get(), level);
+                bubble.setPos(pos);
+                bubble.setItem(item.getItem());
+                bubble.owner = player.getUUID();
+                bubble.setColor(player.getRandom().nextInt(15));
+                bubble.playSound(ModSounds.BUBBLE.get());
+                level.addFreshEntity(bubble);
+            } else {
+                System.out.println("no entity found");
+            }
         }
         return super.use(level, player, hand);
     }
