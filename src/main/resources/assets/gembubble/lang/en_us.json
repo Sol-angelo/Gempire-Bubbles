@@ -5,5 +5,8 @@
 
   "gembubble.subtitle.bubble": "Bubble Formed",
   "gembubble.subtitle.pop": "Bubble Popped",
-  "gembubble.subtitle.send": "Bubble Sent"
+  "gembubble.subtitle.send": "Bubble Sent",
+
+  "advancements.gempire.bubble_wand.title": "Bubbling 101",
+  "advancements.gempire.bubble_wand.description": "Crafted a bubble wand for the first time"
 }

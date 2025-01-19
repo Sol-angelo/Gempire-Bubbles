@@ -78,17 +78,14 @@ public class RenderBubble<T extends EntityBubble> extends EntityRenderer<T> {
             if (!MinecraftForge.EVENT_BUS.post(new RenderItemInBubbleEvent(bubble, this, stack, bufferSource, p_115081_))) {
                 int k = p_115081_;
                 stack.scale(0.6F, 0.6F, 0.6F);
-                this.itemRenderer.renderStatic(itemstack, ItemDisplayContext.FIXED, k, OverlayTexture.NO_OVERLAY, stack, bufferSource, bubble.level, 0);
+                this.itemRenderer.renderStatic(itemstack, ItemDisplayContext.FIXED, k, OverlayTexture.NO_OVERLAY, stack, bufferSource, bubble.level(), 0);
             }
 
             stack.scale(1.66666f + 0.25f, 1.66666f+ 0.25f, 1.66666f+ 0.25f);
             stack.translate(0, -0.4375f, 0);
         }
-        stack.translate(0, -.9375F - 0.2, 0);
-        modelBubble.renderToBuffer(stack, bufferSource.getBuffer(RenderType.entityTranslucentEmissive(getTextureLocation(bubble))), p_115081_, OverlayTexture.NO_OVERLAY, bubbleColours[0], bubbleColours[1], bubbleColours[2], 0.5f);
-
-
-
+        stack.translate(0, -.9375F - 0.1, 0);
+        modelBubble.renderToBuffer(stack, bufferSource.getBuffer(RenderType.entityTranslucentEmissive(getTextureLocation(bubble))), p_115081_, OverlayTexture.NO_OVERLAY, bubbleColours[0], bubbleColours[1], bubbleColours[2], 0.6f);
         stack.popPose();
     }
 

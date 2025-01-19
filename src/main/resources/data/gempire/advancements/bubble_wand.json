@@ -1,0 +1,30 @@
+{
+  "display": {
+    "icon": {
+      "item": "gembubble:bubble_wand"
+    },
+    "title": {
+      "translate": "advancements.gempire.bubble_wand.title"
+    },
+    "description": {
+      "translate": "advancements.gempire.bubble_wand.description"
+    },
+    "frame": "task",
+    "hidden": false
+  },
+  "parent": "gempire:obtain_essence",
+  "criteria": {
+    "requirement": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "gembubble:bubble_wand"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

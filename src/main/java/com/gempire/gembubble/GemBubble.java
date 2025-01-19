@@ -4,15 +4,16 @@ import com.gempire.entities.gems.EntityAquamarine;
 import com.gempire.gembubble.entity.EntityBubble;
 import com.gempire.gembubble.events.ClientEvents;
 import com.gempire.gembubble.init.ModEntities;
+import com.gempire.gembubble.init.ModItems;
 import com.gempire.gembubble.init.Registry;
-import com.gempire.init.ModItems;
+import com.gempire.init.ModCreativeModeTabs;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.CreativeModeTabEvent;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -25,7 +26,6 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.slf4j.Logger;
-import software.bernie.shadowed.eliotlash.mclib.math.functions.limit.Min;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod(GemBubble.MODID)
@@ -71,10 +71,10 @@ public class GemBubble
         Config.items.forEach((item) -> LOGGER.info("ITEM >> {}", item.toString()));
     }
 
-    private void addCreative(CreativeModeTabEvent.BuildContents event)
-    {
-        //if (event.getTab() == )
-            //event.accept(EXAMPLE_BLOCK_ITEM);
+    private void addCreative(BuildCreativeModeTabContentsEvent event) {
+        if(event.getTabKey() == ModCreativeModeTabs.GEMPIRE_ITEMS.getKey()) {
+            event.accept(ModItems.BUBBLE_WAND);
+        }
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call

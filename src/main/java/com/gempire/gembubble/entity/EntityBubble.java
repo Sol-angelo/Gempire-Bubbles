@@ -29,6 +29,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.WaterlilyBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
@@ -50,14 +51,13 @@ public class EntityBubble extends Entity {
 
     public EntityBubble(EntityType<?> p_19870_, Level p_19871_) {
         super(p_19870_, p_19871_);
-        this.entityData.define(EntityBubble.COLOR, 5);
-        this.entityData.define(EntityBubble.ITEM, Items.ALLIUM.getDefaultInstance());
         owner = UUID.randomUUID();
     }
 
     @Override
     protected void defineSynchedData() {
-
+        this.entityData.define(EntityBubble.COLOR, 5);
+        this.entityData.define(EntityBubble.ITEM, Items.AIR.getDefaultInstance());
     }
 
     @Override
@@ -73,7 +73,7 @@ public class EntityBubble extends Entity {
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         tag.putInt("color", getColor());
-        tag.put("item", getItem().save(tag));
+        tag.put("item", getItem().save(new CompoundTag()));
         tag.putString("uuid", owner.toString());
     }
 
@@ -84,12 +84,7 @@ public class EntityBubble extends Entity {
 
     @Override
     public boolean canBeCollidedWith() {
-        return true;
-    }
-
-    @Override
-    public boolean canCollideWith(Entity p_20303_) {
-        return Boat.canVehicleCollide(this, p_20303_);
+        return false;
     }
 
     @Override
@@ -107,8 +102,8 @@ public class EntityBubble extends Entity {
         if (this.isInvulnerableTo(source)) {
             return false;
         }
-        this.getLevel().playSound(null, this.getOnPos(), ModSounds.POP.get(), SoundSource.PLAYERS, 2f, 1);
-        if (!this.level.isClientSide && !this.isRemoved()) {
+        this.level().playLocalSound(this.getOnPos(), ModSounds.POP.get(), SoundSource.PLAYERS, 2f, 1, false);
+        if (!this.level().isClientSide && !this.isRemoved()) {
             this.spawnAtLocation(getItem());
             this.kill();
             return true;
@@ -123,7 +118,7 @@ public class EntityBubble extends Entity {
 
     public void sendHome(Player owner, Level level) {
         System.out.println("send home");
-        this.getLevel().playSound(this, this.getOnPos(), ModSounds.SEND.get(), SoundSource.PLAYERS, 2f, 1);
+        this.level().playSound(this, this.getOnPos(), ModSounds.SEND.get(), SoundSource.PLAYERS, 2f, 1);
         if (level instanceof ServerLevel && owner instanceof ServerPlayer) {
             if (((ServerPlayer) owner).getRespawnPosition() != null) {
                 int x = ((ServerPlayer) owner).getRespawnPosition().getX();
@@ -137,19 +132,44 @@ public class EntityBubble extends Entity {
     }
 
     @Override
+    public void push(Entity p_20293_) {
+        super.push(p_20293_);
+        if (!this.isPassengerOfSameVehicle(p_20293_) && !p_20293_.noPhysics && !this.noPhysics) {
+            double d0 = p_20293_.getX() - this.getX();
+            double d1 = p_20293_.getZ() - this.getZ();
+            double d2 = Mth.absMax(d0, d1);
+            if (d2 >= 0.009999999776482582) {
+                d2 = Math.sqrt(d2);
+                d0 /= d2;
+                d1 /= d2;
+                double d3 = 1.0 / d2;
+                if (d3 > 1.0) {
+                    d3 = 1.0;
+                }
+
+                d0 *= d3;
+                d1 *= d3;
+                d0 *= 0.05000000074505806;
+                d1 *= 0.05000000074505806;
+                this.push(-d0, 0.0, -d1);
+            }
+        }
+    }
+
+    @Override
     public InteractionResult interact(Player player, InteractionHand hand) {
-        if (player.level.isClientSide) {
+        if (player.level().isClientSide) {
             return InteractionResult.PASS;
         }
 
         if (hand == InteractionHand.MAIN_HAND) {
-            //if (owner == player.getUUID()) {
+            if (owner == player.getUUID()) {
                 if (player.getItemInHand(hand).isEmpty()) {
-                    sendHome(player, player.level);
+                    sendHome(player, player.level());
                 } else if (player.getMainHandItem().getItem() instanceof DyeItem dye) {
                     setColor(dye.getDyeColor().getId());
                 }
-            //}
+            }
         }
 
         return InteractionResult.CONSUME;
@@ -176,9 +196,9 @@ public class EntityBubble extends Entity {
                     for(int k2 = k; k2 < l; ++k2) {
                         if (j2 <= 0 || k2 != k && k2 != l - 1) {
                             blockpos$mutableblockpos.set(l1, k2, i2);
-                            BlockState blockstate = this.level.getBlockState(blockpos$mutableblockpos);
-                            if (!(blockstate.getBlock() instanceof WaterlilyBlock) && Shapes.joinIsNotEmpty(blockstate.getCollisionShape(this.level, blockpos$mutableblockpos).move((double)l1, (double)k2, (double)i2), voxelshape, BooleanOp.AND)) {
-                                f += blockstate.getFriction(this.level, blockpos$mutableblockpos, this);
+                            BlockState blockstate = this.level().getBlockState(blockpos$mutableblockpos);
+                            if (!(blockstate.getBlock() instanceof WaterlilyBlock) && Shapes.joinIsNotEmpty(blockstate.getCollisionShape(this.level(), blockpos$mutableblockpos).move((double)l1, (double)k2, (double)i2), voxelshape, BooleanOp.AND)) {
+                                f += blockstate.getFriction(this.level(), blockpos$mutableblockpos, this);
                                 ++k1;
                             }
                         }
@@ -186,24 +206,31 @@ public class EntityBubble extends Entity {
                 }
             }
         }
-
         return f / (float)k1;
     }
 
     @Override
     public void tick() {
-        if (!level.isClientSide) {
+        if (!level().isClientSide) {
             this.move(MoverType.SELF, this.getDeltaMovement());
 
             Vec3 vec3 = this.getDeltaMovement();
             this.setDeltaMovement(vec3.x * (double) this.getGroundFriction(), vec3.y, vec3.z * (double) this.getGroundFriction());
 
             Vec3 vec32 = this.getDeltaMovement();
+            if (!this.onGround()) {
+                this.setDeltaMovement(vec32.x, -100, vec32.y);
+            }
             if (!this.isNoGravity()) {
                 double d0 = this.isInWater() ? -0.005D : -0.02D;
-                this.setDeltaMovement(vec32.x, d0, vec32.y);
+                this.setDeltaMovement(vec32.x, -100, vec32.y);
             }
         }
+    }
+
+    @Override
+    public boolean onGround() {
+        return !level().getBlockState(this.getOnPos()).is(Blocks.AIR);
     }
 
     @Override

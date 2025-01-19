@@ -1,0 +1,19 @@
+{
+  "name": "Bubble Wand",
+  "icon": "gembubble:bubble_wand",
+  "advancement": "gempire:bubble_wand",
+  "category": "gempire:misc",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "link_recipe ": true,
+      "item": "gembubble:bubble_wand",
+      "text": "Bubble wands are a method of creating bubbles to store items similar to item frames. Hold an item in your off-hand and then right click with a bubble wand to create the bubble. \nShift click the bubble to send it back to your spawn point. To pop it, simply punch it."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "gembubble:bubble_wand",
+      "text": "The recipe for a Bubble Wand."
+    }
+  ]
+}
